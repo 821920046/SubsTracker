@@ -2980,6 +2980,10 @@ const configPage = `
                 <input type="checkbox" name="enabledNotifiers" value="bark" class="form-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
                 <span class="ml-2 text-sm text-gray-700">Bark</span>
               </label>
+              <label class="inline-flex items-center">
+                <input type="checkbox" name="enabledNotifiers" value="wenotify" class="form-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                <span class="ml-2 text-sm text-gray-700">WeNotify Edge</span>
+              </label>
             </div>
             <div class="mt-2 flex flex-wrap gap-4">
               <a href="https://www.notifyx.cn/" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-sm">
@@ -3029,6 +3033,33 @@ const configPage = `
             <div class="flex justify-end">
               <button type="button" id="testNotifyXBtn" class="btn-secondary text-white px-4 py-2 rounded-md text-sm font-medium">
                 <i class="fas fa-paper-plane mr-2"></i>测试 NotifyX 通知
+              </button>
+            </div>
+          </div>
+
+          <div id="wenotifyConfig" class="config-section">
+            <h4 class="text-md font-medium text-gray-900 mb-3">WeNotify Edge 配置</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label for="wenotifyUrl" class="block text-sm font-medium text-gray-700">服务地址</label>
+                <input type="url" id="wenotifyUrl" placeholder="https://your-domain.workers.dev" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              </div>
+              <div>
+                <label for="wenotifyToken" class="block text-sm font-medium text-gray-700">API Token</label>
+                <input type="text" id="wenotifyToken" placeholder="在 WeNotify Edge 中设置的 API_TOKEN" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              </div>
+              <div>
+                <label for="wenotifyUserid" class="block text-sm font-medium text-gray-700">UserID (可选)</label>
+                <input type="text" id="wenotifyUserid" placeholder="OPENID1|OPENID2" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              </div>
+              <div>
+                <label for="wenotifyTemplateId" class="block text-sm font-medium text-gray-700">模板ID (可选)</label>
+                <input type="text" id="wenotifyTemplateId" placeholder="微信模板消息 ID" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              </div>
+            </div>
+            <div class="flex justify-end">
+              <button type="button" id="testWeNotifyBtn" class="btn-secondary text-white px-4 py-2 rounded-md text-sm font-medium">
+                <i class="fas fa-paper-plane mr-2"></i>测试 WeNotify Edge
               </button>
             </div>
           </div>
@@ -3206,6 +3237,10 @@ const configPage = `
         document.getElementById('tgBotToken').value = config.TG_BOT_TOKEN || '';
         document.getElementById('tgChatId').value = config.TG_CHAT_ID || '';
         document.getElementById('notifyxApiKey').value = config.NOTIFYX_API_KEY || '';
+        document.getElementById('wenotifyUrl').value = config.WENOTIFY_URL || '';
+        document.getElementById('wenotifyToken').value = config.WENOTIFY_TOKEN || '';
+        document.getElementById('wenotifyUserid').value = config.WENOTIFY_USERID || '';
+        document.getElementById('wenotifyTemplateId').value = config.WENOTIFY_TEMPLATE_ID || '';
         document.getElementById('webhookUrl').value = config.WEBHOOK_URL || '';
         document.getElementById('webhookMethod').value = config.WEBHOOK_METHOD || 'POST';
         document.getElementById('webhookHeaders').value = config.WEBHOOK_HEADERS || '';
@@ -3284,13 +3319,14 @@ const configPage = `
     function toggleNotificationConfigs(enabledNotifiers) {
       const telegramConfig = document.getElementById('telegramConfig');
       const notifyxConfig = document.getElementById('notifyxConfig');
+      const wenotifyConfig = document.getElementById('wenotifyConfig');
       const webhookConfig = document.getElementById('webhookConfig');
       const wechatbotConfig = document.getElementById('wechatbotConfig');
       const emailConfig = document.getElementById('emailConfig');
       const barkConfig = document.getElementById('barkConfig');
 
       // 重置所有配置区域
-      [telegramConfig, notifyxConfig, webhookConfig, wechatbotConfig, emailConfig, barkConfig].forEach(config => {
+      [telegramConfig, notifyxConfig, wenotifyConfig, webhookConfig, wechatbotConfig, emailConfig, barkConfig].forEach(config => {
         config.classList.remove('active', 'inactive');
         config.classList.add('inactive');
       });
@@ -3303,6 +3339,9 @@ const configPage = `
         } else if (type === 'notifyx') {
           notifyxConfig.classList.remove('inactive');
           notifyxConfig.classList.add('active');
+        } else if (type === 'wenotify') {
+          wenotifyConfig.classList.remove('inactive');
+          wenotifyConfig.classList.add('active');
         } else if (type === 'webhook') {
           webhookConfig.classList.remove('inactive');
           webhookConfig.classList.add('active');
@@ -3343,6 +3382,10 @@ const configPage = `
         TG_BOT_TOKEN: document.getElementById('tgBotToken').value.trim(),
         TG_CHAT_ID: document.getElementById('tgChatId').value.trim(),
         NOTIFYX_API_KEY: document.getElementById('notifyxApiKey').value.trim(),
+        WENOTIFY_URL: document.getElementById('wenotifyUrl').value.trim(),
+        WENOTIFY_TOKEN: document.getElementById('wenotifyToken').value.trim(),
+        WENOTIFY_USERID: document.getElementById('wenotifyUserid').value.trim(),
+        WENOTIFY_TEMPLATE_ID: document.getElementById('wenotifyTemplateId').value.trim(),
         WEBHOOK_URL: document.getElementById('webhookUrl').value.trim(),
         WEBHOOK_METHOD: document.getElementById('webhookMethod').value,
         WEBHOOK_HEADERS: document.getElementById('webhookHeaders').value.trim(),
@@ -3412,6 +3455,7 @@ const configPage = `
     async function testNotification(type) {
       const buttonId = type === 'telegram' ? 'testTelegramBtn' :
                       type === 'notifyx' ? 'testNotifyXBtn' :
+                      type === 'wenotify' ? 'testWeNotifyBtn' :
                       type === 'wechatbot' ? 'testWechatBotBtn' :
                       type === 'email' ? 'testEmailBtn' :
                       type === 'bark' ? 'testBarkBtn' : 'testWebhookBtn';
@@ -3419,6 +3463,7 @@ const configPage = `
       const originalContent = button.innerHTML;
       const serviceName = type === 'telegram' ? 'Telegram' :
                           type === 'notifyx' ? 'NotifyX' :
+                          type === 'wenotify' ? 'WeNotify Edge' :
                           type === 'wechatbot' ? '企业微信机器人' :
                           type === 'email' ? '邮件通知' :
                           type === 'bark' ? 'Bark' : '企业微信应用通知';
@@ -3442,6 +3487,18 @@ const configPage = `
 
         if (!config.NOTIFYX_API_KEY) {
           showToast('请先填写 NotifyX API Key', 'warning');
+          button.innerHTML = originalContent;
+          button.disabled = false;
+          return;
+        }
+      } else if (type === 'wenotify') {
+        config.WENOTIFY_URL = document.getElementById('wenotifyUrl').value.trim();
+        config.WENOTIFY_TOKEN = document.getElementById('wenotifyToken').value.trim();
+        config.WENOTIFY_USERID = document.getElementById('wenotifyUserid').value.trim();
+        config.WENOTIFY_TEMPLATE_ID = document.getElementById('wenotifyTemplateId').value.trim();
+
+        if (!config.WENOTIFY_URL || !config.WENOTIFY_TOKEN) {
+          showToast('请先填写 WeNotify Edge 服务地址和 API Token', 'warning');
           button.innerHTML = originalContent;
           button.disabled = false;
           return;
@@ -3524,6 +3581,10 @@ const configPage = `
     
     document.getElementById('testNotifyXBtn').addEventListener('click', () => {
       testNotification('notifyx');
+    });
+
+    document.getElementById('testWeNotifyBtn').addEventListener('click', () => {
+      testNotification('wenotify');
     });
 
     document.getElementById('testWebhookBtn').addEventListener('click', () => {
@@ -3764,6 +3825,10 @@ const api = {
             TG_BOT_TOKEN: newConfig.TG_BOT_TOKEN || '',
             TG_CHAT_ID: newConfig.TG_CHAT_ID || '',
             NOTIFYX_API_KEY: newConfig.NOTIFYX_API_KEY || '',
+            WENOTIFY_URL: newConfig.WENOTIFY_URL || '',
+            WENOTIFY_TOKEN: newConfig.WENOTIFY_TOKEN || '',
+            WENOTIFY_USERID: newConfig.WENOTIFY_USERID || '',
+            WENOTIFY_TEMPLATE_ID: newConfig.WENOTIFY_TEMPLATE_ID || '',
             WEBHOOK_URL: newConfig.WEBHOOK_URL || '',
             WEBHOOK_METHOD: newConfig.WEBHOOK_METHOD || 'POST',
             WEBHOOK_HEADERS: newConfig.WEBHOOK_HEADERS || '',
@@ -3838,6 +3903,18 @@ const api = {
 
           success = await sendNotifyXNotification(title, content, description, testConfig);
           message = success ? 'NotifyX通知发送成功' : 'NotifyX通知发送失败，请检查配置';
+        } else if (body.type === 'wenotify') {
+          const testConfig = {
+            ...config,
+            WENOTIFY_URL: body.WENOTIFY_URL,
+            WENOTIFY_TOKEN: body.WENOTIFY_TOKEN,
+            WENOTIFY_USERID: body.WENOTIFY_USERID,
+            WENOTIFY_TEMPLATE_ID: body.WENOTIFY_TEMPLATE_ID
+          };
+          const title = '测试通知';
+          const content = '这是一条测试通知，用于验证 WeNotify Edge 通知功能是否正常工作。\n\n发送时间: ' + formatBeijingTime();
+          success = await sendWeNotifyEdgeNotification(title, content, testConfig);
+          message = success ? 'WeNotify Edge 通知发送成功' : 'WeNotify Edge 通知发送失败，请检查配置';
         } else if (body.type === 'webhook') {
           const testConfig = {
             ...config,
@@ -4084,6 +4161,10 @@ async function getConfig(env) {
       TG_BOT_TOKEN: config.TG_BOT_TOKEN || '',
       TG_CHAT_ID: config.TG_CHAT_ID || '',
       NOTIFYX_API_KEY: config.NOTIFYX_API_KEY || '',
+      WENOTIFY_URL: config.WENOTIFY_URL || '',
+      WENOTIFY_TOKEN: config.WENOTIFY_TOKEN || '',
+      WENOTIFY_USERID: config.WENOTIFY_USERID || '',
+      WENOTIFY_TEMPLATE_ID: config.WENOTIFY_TEMPLATE_ID || '',
       WEBHOOK_URL: config.WEBHOOK_URL || '',
       WEBHOOK_METHOD: config.WEBHOOK_METHOD || 'POST',
       WEBHOOK_HEADERS: config.WEBHOOK_HEADERS || '',
@@ -4117,6 +4198,10 @@ async function getConfig(env) {
       TG_BOT_TOKEN: '',
       TG_CHAT_ID: '',
       NOTIFYX_API_KEY: '',
+      WENOTIFY_URL: '',
+      WENOTIFY_TOKEN: '',
+      WENOTIFY_USERID: '',
+      WENOTIFY_TEMPLATE_ID: '',
       WEBHOOK_URL: '',
       WEBHOOK_METHOD: 'POST',
       WEBHOOK_HEADERS: '',
@@ -4654,6 +4739,11 @@ async function sendNotificationToAllChannels(title, commonContent, config, logPr
         const success = await sendNotifyXNotification(title, notifyxContent, `订阅提醒`, config);
         console.log(`${logPrefix} 发送NotifyX通知 ${success ? '成功' : '失败'}`);
     }
+    if (config.ENABLED_NOTIFIERS.includes('wenotify')) {
+        const wenotifyContent = commonContent.replace(/(\**|\*|##|#|`)/g, '');
+        const success = await sendWeNotifyEdgeNotification(title, wenotifyContent, config);
+        console.log(`${logPrefix} 发送WeNotify Edge通知 ${success ? '成功' : '失败'}`);
+    }
     if (config.ENABLED_NOTIFIERS.includes('telegram')) {
         const telegramContent = `*${title}*\n\n${commonContent}`;
         const success = await sendTelegramNotification(telegramContent, config);
@@ -4740,6 +4830,46 @@ async function sendNotifyXNotification(title, content, description, config) {
     return result.status === 'queued';
   } catch (error) {
     console.error('[NotifyX] 发送通知失败:', error);
+    return false;
+  }
+}
+
+async function sendWeNotifyEdgeNotification(title, content, config) {
+  try {
+    if (!config.WENOTIFY_URL || !config.WENOTIFY_TOKEN) {
+      console.error('[WeNotify Edge] 通知未配置，缺少服务地址或Token');
+      return false;
+    }
+    let base = config.WENOTIFY_URL.trim().replace(/\/+$/, '');
+    let url = base.endsWith('/wxsend') ? base : base + '/wxsend';
+    const body = {
+      title: title,
+      content: content
+    };
+    if (config.WENOTIFY_USERID) {
+      body.userid = config.WENOTIFY_USERID;
+    }
+    if (config.WENOTIFY_TEMPLATE_ID) {
+      body.template_id = config.WENOTIFY_TEMPLATE_ID;
+    }
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + config.WENOTIFY_TOKEN
+      },
+      body: JSON.stringify(body)
+    });
+    const text = await response.text();
+    try {
+      const json = JSON.parse(text);
+      if (response.ok) return true;
+      return false;
+    } catch (_) {
+      return response.ok;
+    }
+  } catch (error) {
+    console.error('[WeNotify Edge] 发送通知失败:', error);
     return false;
   }
 }
